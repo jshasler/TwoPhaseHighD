@@ -6,29 +6,6 @@
 ##########################################################
 ##########################################################
 
-
-func_A1gen <- function(rho,p){
-  A1=matrix(0,p,p)
-  for(i in 1:p){
-    for(j in 1:p){
-      A1[i,j]<-rho^(abs(i-j))
-    }
-  }
-  A1
-}
-
-Cont2Bin <- function(X,freq,p_bin,n) {
-  X_Cont2Bin <- matrix(0,n,p_bin)
-  for (i in 1:p_bin) {
-    cutoff <- unname(quantile(X,1-freq[i]))
-    for (j in 1:n) {
-      X_Cont2Bin[j] <- X[j] >= cutoff
-    }
-    
-  }
-  X_Cont2Bin
-}
-
 data_gen <- function(N,prob_y,dim_X,dim_Z,nonzero_X,Z_logOR,rho) {
   # generate full data, first variable is binary
   Cov <- func_A1gen(rho, (dim_X+dim_Z))
@@ -62,6 +39,28 @@ data_gen <- function(N,prob_y,dim_X,dim_Z,nonzero_X,Z_logOR,rho) {
   return(list(data_P1=data_P1,gamma_logOR=gamma_logOR,gamma0=gamma0))
 }
 
+func_A1gen <- function(rho,p){
+  A1=matrix(0,p,p)
+  for(i in 1:p){
+    for(j in 1:p){
+      A1[i,j]<-rho^(abs(i-j))
+    }
+  }
+  A1
+}
+
+Cont2Bin <- function(X,freq,p_bin,n) {
+  X_Cont2Bin <- matrix(0,n,p_bin)
+  for (i in 1:p_bin) {
+    cutoff <- unname(quantile(X,1-freq[i]))
+    for (j in 1:n) {
+      X_Cont2Bin[j] <- X[j] >= cutoff
+    }
+    
+  }
+  X_Cont2Bin
+}
+
 Dat_gensrs <- function(prob_nII,n) {
   R <- rbinom(N,1,prob_nII)
   return(R)
@@ -82,7 +81,7 @@ Dat_adaLasso <- function(HighD_X,Y) {
   best_ridge_coef <- as.numeric(best_ridge_coef)[-1]
   adaptive_lasso <- cv.glmnet(x=HighD_X,y=Y,family="binomial",alpha=1,penalty.factor=1/abs(best_ridge_coef))
   yhat.full <- predict(adaptive_lasso,s="lambda.min",HighD_X,type="response")
-  return(list(yhat.full=yhat.full,fit=adaptive_lasso))
+  return(list(fit=adaptive_lasso))
 }
 
 Dat_fullauc <- function(yhat) {
